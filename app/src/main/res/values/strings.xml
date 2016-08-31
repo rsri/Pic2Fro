@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Pic2Fro</string>
+    <string name="add_image">No images found. Tap to add.</string>
+    <string name="add_time">Time per pic</string>
+    <string name="add_count">Repetition count</string>
+    <string name="insert_audio">Pick audio</string>
+    <string name="record_audio">Record audio</string>
+
+    <string-array name="times">
+        <item>0.2s</item>
+        <item>0.3s</item>
+        <item>0.4s</item>
+        <item>0.5s</item>
+        <item>0.6s</item>
+        <item>0.7s</item>
+        <item>0.8s</item>
+    </string-array>
+
+    <string-array name="counts">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+</resources>
