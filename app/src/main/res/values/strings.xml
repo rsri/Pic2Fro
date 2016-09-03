@@ -5,6 +5,10 @@
     <string name="add_count">Repetition count</string>
     <string name="insert_audio">Pick audio</string>
     <string name="record_audio">Record audio</string>
+    <string name="save">Save</string>
+    <string name="share">Share</string>
+    <string name="need_permission">Can\'t access images without this permission</string>
+    <string name="player">Player</string>
 
     <string-array name="times">
         <item>0.2s</item>
