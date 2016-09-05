@@ -3,7 +3,6 @@ package com.pic2fro.pic2fro.activities;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -21,14 +19,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pic2fro.pic2fro.R;
-import com.pic2fro.pic2fro.controller.AudioAdapter;
-import com.pic2fro.pic2fro.controller.PickAdapter;
+import com.pic2fro.pic2fro.controller.CreationAdapter;
 import com.pic2fro.pic2fro.util.Constants;
 import com.pic2fro.pic2fro.util.IntentCreator;
 
-import net.yazeed44.imagepicker.model.ImageEntry;
-
-import java.io.File;
 import java.util.List;
 
 public class CreatorActivity extends AppCompatActivity implements View.OnClickListener {
@@ -40,16 +34,14 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
     private Spinner timeSpinner;
     private Spinner countSpinner;
 
-    private PickAdapter pickAdapter;
-
-
+    private CreationAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        pickAdapter = new PickAdapter(this);
+        adapter = new CreationAdapter(this);
         addImageTV = (TextView) findViewById(R.id.add_image_tv);
         audioPickCV = (CardView) findViewById(R.id.audio_pick_cv);
         audioRecordCV = (CardView) findViewById(R.id.audio_record_cv);
@@ -59,6 +51,7 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
         addImageTV.setOnClickListener(this);
         audioPickCV.setOnClickListener(this);
         audioRecordCV.setOnClickListener(this);
+        adapter.refreshOnCreate();
     }
 
     @Override
@@ -74,7 +67,8 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
             Bundle args = new Bundle();
             args.putString(Constants.ARG_TIME, timeSpinner.getSelectedItem().toString());
             args.putString(Constants.ARG_COUNT, countSpinner.getSelectedItem().toString());
-            startActivity(intent, args);
+            intent.putExtras(args);
+            startActivity(intent);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -84,7 +78,7 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.add_image_tv:
-                IntentCreator.launchImagePicker(this, pickAdapter);
+                IntentCreator.launchImagePicker(this, adapter);
                 break;
             case R.id.audio_pick_cv:
                 IntentCreator.launchAudioPicker(this);
@@ -104,7 +98,7 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
             switch (requestCode) {
                 case Constants.REQ_CODE_AUDIO_PICK:
                 case Constants.REQ_CODE_AUDIO_RECORD:
-//                    audioAdapter.setAudioUri(data.getData());
+                    adapter.setAudioUri(data.getData());
                     break;
                 default:
                     break;
@@ -119,8 +113,9 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
             case Constants.REQ_CODE_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     Toast.makeText(this, R.string.need_permission, Toast.LENGTH_SHORT).show();
+                } else {
+                    IntentCreator.launchImagePicker(this, adapter);
                 }
-                IntentCreator.launchImagePicker(this, pickAdapter);
                 break;
             default:
                 break;
@@ -131,31 +126,27 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
         addImageTV.setVisibility(visible? View.VISIBLE : View.GONE);
     }
 
-    public void refreshImages(List<ImageEntry> images) {
+    public void refreshImages(List<Bitmap> images) {
         if (images.isEmpty()) {
             toggleAddImageTextView(true);
         } else {
             toggleAddImageTextView(false);
             int childCount = 0;
-            for (ImageEntry image : images) {
+            for (Bitmap image : images) {
                 View childAt = imagesGridLayout.getChildAt(childCount++);
                 if (childAt instanceof RelativeLayout && childAt.getVisibility() == View.GONE) {
                     childAt.setVisibility(View.VISIBLE);
                     ImageView imageView = (ImageView) ((RelativeLayout) childAt).getChildAt(0);
-                    imageView.setImageBitmap(fetchBitmap(image));
+                    imageView.setImageBitmap(image);
                 }
             }
             imagesGridLayout.requestLayout();
         }
     }
 
-    private Bitmap fetchBitmap(ImageEntry image) {
-        return BitmapFactory.decodeFile(image.path);
-    }
-
     public void removeChild(View v) {
         int index = imagesGridLayout.indexOfChild(((ViewGroup) v.getParent()));
         imagesGridLayout.getChildAt(index).setVisibility(View.GONE);
-        pickAdapter.removeImage(index);
+        adapter.removeImage(index);
     }
 }

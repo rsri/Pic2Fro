@@ -4,24 +4,60 @@ import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 
 import com.pic2fro.pic2fro.activities.CreatorActivity;
-import com.pic2fro.pic2fro.activities.PlayActivity;
 import com.pic2fro.pic2fro.model.DataHolder;
+
+import net.yazeed44.imagepicker.model.ImageEntry;
+import net.yazeed44.imagepicker.util.Picker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by srikaram on 01-Sep-16.
  */
-public class AudioAdapter implements LoaderManager.LoaderCallbacks<Cursor> {
+public class CreationAdapter implements Picker.PickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
-    private final PlayActivity activity;
+    private final CreatorActivity activity;
     private Uri audioUri;
 
-    public AudioAdapter(PlayActivity activity) {
+    public CreationAdapter(CreatorActivity activity) {
         this.activity = activity;
+    }
+
+    public void refreshOnCreate() {
+        activity.refreshImages(DataHolder.getImages());
+    }
+
+    @Override
+    public void onPickedSuccessfully(ArrayList<ImageEntry> images) {
+        List<Bitmap> bitmaps = fetchBitmap(images);
+        DataHolder.addImages(bitmaps);
+        activity.refreshImages(bitmaps);
+    }
+
+    private List<Bitmap> fetchBitmap(List<ImageEntry> images) {
+        List<Bitmap> bitmaps = new ArrayList<>(images.size());
+        for (ImageEntry image : images) {
+            bitmaps.add(BitmapFactory.decodeFile(image.path));
+        }
+        return bitmaps;
+    }
+    @Override
+    public void onCancel() {
+    }
+
+    public void removeImage(int pos) {
+        DataHolder.removeImage(pos);
+        if (DataHolder.imageCount() == 0) {
+            activity.toggleAddImageTextView(true);
+        }
     }
 
     public void setAudioUri(Uri uri) {

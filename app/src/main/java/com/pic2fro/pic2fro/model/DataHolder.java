@@ -1,8 +1,7 @@
 package com.pic2fro.pic2fro.model;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
-
-import net.yazeed44.imagepicker.model.ImageEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +11,14 @@ import java.util.List;
  */
 public class DataHolder {
 
-    private static List<ImageEntry> images = new ArrayList<>(4);
+    private static List<Bitmap> images = new ArrayList<>(4);
     private static String audioPath;
 
-    public static void addImages(List<ImageEntry> imageList) {
+    public static void addImages(List<Bitmap> imageList) {
         images.addAll(imageList);
     }
 
-    public static void insertImage(ImageEntry entry) {
+    public static void insertImage(Bitmap entry) {
         images.add(entry);
     }
 
@@ -32,12 +31,12 @@ public class DataHolder {
         return images.size();
     }
 
-    public static ImageEntry getImageAt(int pos) {
+    public static Bitmap getImageAt(int pos) {
         validatePos(pos);
         return images.get(pos);
     }
 
-    public static List<ImageEntry> getImages() {
+    public static List<Bitmap> getImages() {
         return images;
     }
 
