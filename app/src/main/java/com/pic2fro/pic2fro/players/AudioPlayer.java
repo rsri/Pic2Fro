@@ -1,8 +1,7 @@
 package com.pic2fro.pic2fro.players;
 
-import android.content.Context;
 import android.media.MediaPlayer;
-import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 
 import java.io.IOException;
 
@@ -11,13 +10,12 @@ import java.io.IOException;
  */
 public class AudioPlayer {
 
-    private final MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer;
 
-    public AudioPlayer(Context context, String path) {
+    public AudioPlayer(final FragmentActivity activity, String path) {
         try {
             this.mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(path);
-//            mediaPlayer.setDataSource(context, path);
             mediaPlayer.setLooping(true);
             mediaPlayer.prepare();
         } catch (IOException e) {
@@ -31,7 +29,13 @@ public class AudioPlayer {
     }
 
     public void stop() {
-        mediaPlayer.stop();
+        if (mediaPlayer == null) {
+            return;
+        }
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
         mediaPlayer.release();
+        mediaPlayer = null;
     }
 }

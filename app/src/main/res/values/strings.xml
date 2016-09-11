@@ -7,17 +7,27 @@
     <string name="record_audio">Record audio</string>
     <string name="save">Save</string>
     <string name="share">Share</string>
-    <string name="need_permission">Can\'t access images without this permission</string>
+    <string name="need_permission">Can\'t %s without this permission</string>
     <string name="player">Player</string>
+    <string name="saving">Saving…</string>
+    <string name="saving_msg">Please wait while video saves</string>
+    <string name="send_to">Send video to</string>
+    <string name="creator">Creator</string>
+    <string name="videos">Videos</string>
+    <string name="create_video">Create video</string>
+    <string name="view_videos">View videos</string>
+    <string name="exit">Exit</string>
+    <string name="error_video">Error saving video.</string>
+    <string name="saved">Saved %s</string>
+    <string name="enter_file_name">Enter video name</string>
 
     <string-array name="times">
         <item>0.2s</item>
-        <item>0.3s</item>
         <item>0.4s</item>
-        <item>0.5s</item>
         <item>0.6s</item>
-        <item>0.7s</item>
         <item>0.8s</item>
+        <item>1.0s</item>
+        <item>1.2s</item>
     </string-array>
 
     <string-array name="counts">

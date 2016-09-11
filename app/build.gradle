@@ -28,4 +28,5 @@ dependencies {
     compile 'com.android.support:gridlayout-v7:24.2.0'
     compile 'com.android.support:design:24.2.0'
     compile 'org.jcodec:jcodec-android:0.1.9'
+    compile 'com.googlecode.mp4parser:isoparser:1.1.7'
 }

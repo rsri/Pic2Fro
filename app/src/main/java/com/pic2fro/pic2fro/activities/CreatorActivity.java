@@ -110,9 +110,9 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case Constants.REQ_CODE_PERMISSION:
+            case Constants.REQ_CODE_READ_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, R.string.need_permission, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.need_permission, "access images"), Toast.LENGTH_SHORT).show();
                 } else {
                     IntentCreator.launchImagePicker(this, adapter);
                 }

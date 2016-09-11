@@ -2,24 +2,34 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pic2fro.pic2fro">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:largeHeap="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.CreatorActivity">
+        <activity
+            android:name=".activities.CreatorActivity"
+            android:label="@string/creator"
+            android:parentActivityName=".activities.OpeningActivity" />
+        <activity
+            android:name=".activities.PlayActivity"
+            android:label="@string/player"
+            android:parentActivityName=".activities.CreatorActivity" />
+        <activity android:name=".activities.OpeningActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.PlayActivity"
-            android:label="@string/player"
-            android:parentActivityName=".activities.CreatorActivity" />
+        <activity android:name=".activities.VideosActivity"
+            android:label="@string/videos"
+            android:parentActivityName=".activities.OpeningActivity" />
     </application>
 
 </manifest>
