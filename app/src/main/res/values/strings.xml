@@ -20,6 +20,7 @@
     <string name="error_video">Error saving video.</string>
     <string name="saved">Saved %s</string>
     <string name="enter_file_name">Enter video name</string>
+    <string name="pick_audio">Pick audio</string>
 
     <string-array name="times">
         <item>0.2s</item>

@@ -1,8 +1,8 @@
 package com.pic2fro.pic2fro.controller;
 
-import android.app.LoaderManager;
-import android.content.CursorLoader;
-import android.content.Loader;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.content.CursorLoader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -96,7 +96,7 @@ public class CreationAdapter implements Picker.PickListener, LoaderManager.Loade
 
     public void setAudioUri(Uri uri) {
         audioUri = uri;
-        activity.getLoaderManager().initLoader(0, null, this);
+        activity.getSupportLoaderManager().initLoader(0, null, this);
     }
 
     private String getPathFromCursor(Cursor cursor) {

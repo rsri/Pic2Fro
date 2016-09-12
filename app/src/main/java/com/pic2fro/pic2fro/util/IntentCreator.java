@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.widget.EditText;
 
 import com.pic2fro.pic2fro.R;
+import com.pic2fro.pic2fro.views.FileChooser;
 
 import net.yazeed44.imagepicker.util.Picker;
 
@@ -22,17 +23,17 @@ import net.yazeed44.imagepicker.util.Picker;
 public class IntentCreator {
 
     public static void launchImagePicker(FragmentActivity activity, Picker.PickListener listener) {
-        int permissioCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (permissioCheck == PackageManager.PERMISSION_GRANTED) {
+        int permissionCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             launchImagePickerInternal(activity, listener);
         } else {
-            ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.REQ_CODE_READ_PERMISSION);
+            ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.REQ_CODE_READ_PERMISSION_IMAGES);
         }
     }
 
     public static void launchVideoSaverDialog(FragmentActivity activity, DialogInterface.OnClickListener listener) {
-        int permissioCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissioCheck == PackageManager.PERMISSION_GRANTED) {
+        int permissionCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             launchVideoSaverDialogInternal(activity, listener);
         } else {
             ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.REQ_CODE_WRITE_PERMISSION);
@@ -61,11 +62,23 @@ public class IntentCreator {
         picker.startActivity();
     }
 
-    public static void launchAudioPicker(FragmentActivity activity) {
-        Intent intent = new Intent();
-        intent.setType("audio/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        activity.startActivityForResult(intent, Constants.REQ_CODE_AUDIO_PICK);
+    public static void launchAudioPicker(FragmentActivity activity, FileChooser.FileSelectedListener listener) {
+        int permissionCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            launchAudioPickerInternal(activity, listener);
+        } else {
+            ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.REQ_CODE_READ_PERMISSION_AUDIO);
+        }
+//        Intent intent = new Intent();
+//        intent.setType("audio/*");
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+//        activity.startActivityForResult(intent, Constants.REQ_CODE_AUDIO_PICK);
+    }
+
+    private static void launchAudioPickerInternal(FragmentActivity activity, FileChooser.FileSelectedListener listener) {
+        FileChooser fileChooser = new FileChooser(activity);
+        fileChooser.setFileListener(listener);
+        fileChooser.showDialog();
     }
 
     public static void launchAudioRecorder(FragmentActivity activity) {
@@ -77,8 +90,7 @@ public class IntentCreator {
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_STREAM, videoUri);
-        shareIntent.setType("video/mp4")
-        ;
+        shareIntent.setType("video/mp4");
         activity.startActivity(Intent.createChooser(shareIntent, activity.getText(R.string.send_to)));
     }
 }

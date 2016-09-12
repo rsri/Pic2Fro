@@ -12,6 +12,8 @@ import android.media.MediaFormat;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -71,8 +73,9 @@ public class SoundFile {
 
     public static boolean isFilenameSupported(String filename) {
         String[] extensions = getSupportedExtensions();
+        String fileExtension = FilenameUtils.getExtension(filename).toLowerCase();
         for (int i = 0; i < extensions.length; i++) {
-            if (filename.endsWith("." + extensions[i])) {
+            if (fileExtension.equals(extensions[i])) {
                 return true;
             }
         }

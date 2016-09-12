@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.pic2fro.pic2fro.R;
 import com.pic2fro.pic2fro.util.Constants;
 import com.pic2fro.pic2fro.util.IntentCreator;
+import com.pic2fro.pic2fro.util.Util;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -39,7 +40,7 @@ public class VideoListAdapter extends BaseAdapter {
     }
 
     private void fetchVideoFiles() {
-        File file = new File(Constants.SAVE_PATH);
+        File file = new File(Util.getOurFolder());
         if (!file.exists()) {
             System.out.println("No videos found");
             return;

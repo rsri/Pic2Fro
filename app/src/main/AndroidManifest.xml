@@ -9,27 +9,33 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
         android:largeHeap="true"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".activities.CreatorActivity"
             android:label="@string/creator"
-            android:parentActivityName=".activities.OpeningActivity" />
+            android:parentActivityName=".activities.OpeningActivity"
+            android:screenOrientation="sensorPortrait" />
         <activity
             android:name=".activities.PlayActivity"
             android:label="@string/player"
-            android:parentActivityName=".activities.CreatorActivity" />
-        <activity android:name=".activities.OpeningActivity">
+            android:parentActivityName=".activities.CreatorActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name=".activities.OpeningActivity"
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.VideosActivity"
+        <activity
+            android:name=".activities.VideosActivity"
             android:label="@string/videos"
-            android:parentActivityName=".activities.OpeningActivity" />
+            android:parentActivityName=".activities.OpeningActivity"
+            android:screenOrientation="sensorPortrait" />
     </application>
 
 </manifest>

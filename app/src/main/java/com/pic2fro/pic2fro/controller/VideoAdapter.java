@@ -17,6 +17,7 @@ import com.pic2fro.pic2fro.creators.VideoCreator;
 import com.pic2fro.pic2fro.model.DataHolder;
 import com.pic2fro.pic2fro.util.Constants;
 import com.pic2fro.pic2fro.util.IntentCreator;
+import com.pic2fro.pic2fro.util.Util;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -101,7 +102,7 @@ public class VideoAdapter {
         @Override
         protected String doInBackground(Bitmap... params) {
             try {
-                String finalPath = Constants.SAVE_PATH + "/" + fileName + ".mp4";
+                String finalPath = Util.getOurFolder() + "/" + fileName + ".mp4";
                 Context context = VideoAdapter.this.activity;
                 String videoTempPath = VideoCreator.constructVoicelessVideo(context, fileName, Arrays.asList(params), time, count);
                 VideoCreator.createFullVideo(finalPath, context, fileName, DataHolder.getAudioPath(), videoTempPath);

@@ -46,11 +46,11 @@ public class PlayAdapter {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (counter == Constants.MAX_IMAGES * count) {
+                if (counter == DataHolder.imageCount() * count) {
                     endSlideshow();
                     return;
                 }
-                Bitmap image = DataHolder.getImageAt(counter % Constants.MAX_IMAGES);
+                Bitmap image = DataHolder.getImageAt(counter % DataHolder.imageCount());
                 slideshowPlayer.changeImage(image);
                 counter++;
             }

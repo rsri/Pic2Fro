@@ -3,6 +3,7 @@ package com.pic2fro.pic2fro.activities;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -22,10 +23,12 @@ import com.pic2fro.pic2fro.R;
 import com.pic2fro.pic2fro.controller.CreationAdapter;
 import com.pic2fro.pic2fro.util.Constants;
 import com.pic2fro.pic2fro.util.IntentCreator;
+import com.pic2fro.pic2fro.views.FileChooser;
 
+import java.io.File;
 import java.util.List;
 
-public class CreatorActivity extends AppCompatActivity implements View.OnClickListener {
+public class CreatorActivity extends AppCompatActivity implements View.OnClickListener, FileChooser.FileSelectedListener {
 
     private TextView addImageTV;
     private CardView audioPickCV;
@@ -81,7 +84,7 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
                 IntentCreator.launchImagePicker(this, adapter);
                 break;
             case R.id.audio_pick_cv:
-                IntentCreator.launchAudioPicker(this);
+                IntentCreator.launchAudioPicker(this, this);
                 break;
             case R.id.audio_record_cv:
                 IntentCreator.launchAudioRecorder(this);
@@ -89,6 +92,11 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
             default:
                 break;
         }
+    }
+
+    @Override
+    public void fileSelected(File file) {
+        adapter.setAudioUri(Uri.fromFile(file));
     }
 
     @Override
@@ -110,11 +118,18 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case Constants.REQ_CODE_READ_PERMISSION:
+            case Constants.REQ_CODE_READ_PERMISSION_IMAGES:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     Toast.makeText(this, getString(R.string.need_permission, "access images"), Toast.LENGTH_SHORT).show();
                 } else {
                     IntentCreator.launchImagePicker(this, adapter);
+                }
+                break;
+            case Constants.REQ_CODE_READ_PERMISSION_AUDIO:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, getString(R.string.need_permission, "access audios"), Toast.LENGTH_SHORT).show();
+                } else {
+                    IntentCreator.launchAudioPicker(this, this);
                 }
                 break;
             default:
@@ -123,7 +138,7 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     public void toggleAddImageTextView(boolean visible) {
-        addImageTV.setVisibility(visible? View.VISIBLE : View.GONE);
+        addImageTV.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     public void refreshImages(List<Bitmap> images) {
