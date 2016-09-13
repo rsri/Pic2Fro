@@ -13,6 +13,9 @@ public class AudioPlayer {
     private MediaPlayer mediaPlayer;
 
     public AudioPlayer(final FragmentActivity activity, String path) {
+        if (path == null) {
+            return;
+        }
         try {
             this.mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(path);
@@ -25,6 +28,9 @@ public class AudioPlayer {
     }
 
     public void play() {
+        if (mediaPlayer == null) {
+            return;
+        }
         mediaPlayer.start();
     }
 

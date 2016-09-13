@@ -49,30 +49,32 @@ public class VideoCreator {
     public static void createFullVideo(String finalPath, Context context, String timestamp, String audioPath, String videoTempPath) throws IOException, SoundFile.InvalidInputException {
         File finalFile = new File(finalPath);
         finalFile.createNewFile();
-        long time = VideoCreator.getMediaLength(context, videoTempPath);
-        time = (long) Math.ceil(time / 1000.0);
-        long audioLength = (long) Math.ceil(getMediaLength(context, audioPath) / 1000.0);
-        long startTime = 0, endTime = time;
         List<File> audioFiles = new LinkedList<>();
-        if (audioLength >= time) {
-            SoundFile soundFile = SoundFile.create(audioPath, null);
-            File audioTempFile = File.createTempFile(timestamp, ".m4a", context.getExternalCacheDir());
-            soundFile.writeFile(audioTempFile, startTime, endTime);
-            audioFiles.add(audioTempFile);
-        } else {
-            SoundFile soundFile = SoundFile.create(audioPath, null);
+        if (audioPath != null) {
+            long time = VideoCreator.getMediaLength(context, videoTempPath);
+            time = (long) Math.ceil(time / 1000.0);
+            long audioLength = (long) Math.ceil(getMediaLength(context, audioPath) / 1000.0);
+            long startTime = 0, endTime = time;
+            if (audioLength >= time) {
+                SoundFile soundFile = SoundFile.create(audioPath, null);
+                File audioTempFile = File.createTempFile(timestamp, ".m4a", context.getExternalCacheDir());
+                soundFile.writeFile(audioTempFile, startTime, endTime);
+                audioFiles.add(audioTempFile);
+            } else {
+                SoundFile soundFile = SoundFile.create(audioPath, null);
 
-            long fullLength = (long) Math.floor(time / audioLength);
-            long partLength = time % audioLength;
-            for (int i = 0; i < fullLength; i++) {
-                File audioTempFile = File.createTempFile(timestamp + "" + i, ".m4a", context.getExternalCacheDir());
-                soundFile.writeFile(audioTempFile, startTime, audioLength);
-                audioFiles.add(audioTempFile);
-            }
-            if (partLength > 0) {
-                File audioTempFile = File.createTempFile(timestamp + "" + fullLength, ".m4a", context.getExternalCacheDir());
-                soundFile.writeFile(audioTempFile, startTime, partLength);
-                audioFiles.add(audioTempFile);
+                long fullLength = (long) Math.floor(time / audioLength);
+                long partLength = time % audioLength;
+                for (int i = 0; i < fullLength; i++) {
+                    File audioTempFile = File.createTempFile(timestamp + "" + i, ".m4a", context.getExternalCacheDir());
+                    soundFile.writeFile(audioTempFile, startTime, audioLength);
+                    audioFiles.add(audioTempFile);
+                }
+                if (partLength > 0) {
+                    File audioTempFile = File.createTempFile(timestamp + "" + fullLength, ".m4a", context.getExternalCacheDir());
+                    soundFile.writeFile(audioTempFile, startTime, partLength);
+                    audioFiles.add(audioTempFile);
+                }
             }
         }
 
@@ -90,7 +92,9 @@ public class VideoCreator {
         for (Movie audio : audios) {
             audioTracks.addAll(audio.getTracks());
         }
-        movie.addTrack(new AppendTrack(audioTracks.toArray(new Track[audioTracks.size()])));
+        if (!audioTracks.isEmpty()) {
+            movie.addTrack(new AppendTrack(audioTracks.toArray(new Track[audioTracks.size()])));
+        }
         Container out = new DefaultMp4Builder().build(movie);
         FileChannel fc = new RandomAccessFile(finalFile, "rw").getChannel();
         out.writeContainer(fc);

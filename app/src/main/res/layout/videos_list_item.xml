@@ -22,7 +22,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:focusableInTouchMode="true"
-        android:background="@color/light_red"
+        android:background="@drawable/rounded_corners"
         android:src="@drawable/ic_action_remove" />
 
     <ImageButton
@@ -30,7 +30,7 @@
         android:layout_width="0dp"
         android:layout_marginStart="5dp"
         android:layout_height="match_parent"
-        android:background="@android:color/holo_green_light"
+        android:background="@drawable/rounded_corners"
         android:layout_weight="1"
         android:focusableInTouchMode="true"
         android:src="@drawable/ic_action_share" />

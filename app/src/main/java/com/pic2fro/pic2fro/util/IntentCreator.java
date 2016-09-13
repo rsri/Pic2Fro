@@ -22,10 +22,10 @@ import net.yazeed44.imagepicker.util.Picker;
  */
 public class IntentCreator {
 
-    public static void launchImagePicker(FragmentActivity activity, Picker.PickListener listener) {
+    public static void launchImagePicker(FragmentActivity activity, Picker.PickListener listener, int imageCount) {
         int permissionCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            launchImagePickerInternal(activity, listener);
+            launchImagePickerInternal(activity, listener, imageCount);
         } else {
             ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.REQ_CODE_READ_PERMISSION_IMAGES);
         }
@@ -52,11 +52,11 @@ public class IntentCreator {
         builder.show();
     }
 
-    private static void launchImagePickerInternal(FragmentActivity activity, Picker.PickListener listener) {
+    private static void launchImagePickerInternal(FragmentActivity activity, Picker.PickListener listener, int imageCount) {
         Picker.Builder builder = new Picker.Builder(activity, listener, R.style.MIP_theme);
         builder.setVideosEnabled(false);
         builder.setPickMode(Picker.PickMode.MULTIPLE_IMAGES);
-        builder.setLimit(Constants.MAX_IMAGES);
+        builder.setLimit(imageCount);
         builder.setBackBtnInMainActivity(true);
         Picker picker = builder.build();
         picker.startActivity();

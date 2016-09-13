@@ -17,6 +17,7 @@ import com.pic2fro.pic2fro.util.Constants;
 import net.yazeed44.imagepicker.model.ImageEntry;
 import net.yazeed44.imagepicker.util.Picker;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,20 +34,32 @@ public class CreationAdapter implements Picker.PickListener, LoaderManager.Loade
     }
 
     public void refreshOnCreate() {
-        activity.refreshImages(DataHolder.getImages());
+        refreshImages();
+        activity.refreshAudio(DataHolder.getAudioSource());
+        restoreSpinnerInfo();
     }
 
     @Override
     public void onPickedSuccessfully(ArrayList<ImageEntry> images) {
         List<Bitmap> bitmaps = fetchBitmap(images);
         DataHolder.addImages(bitmaps);
-        activity.refreshImages(bitmaps);
+        refreshImages();
+    }
+
+    public void refreshImages() {
+        activity.refreshImages(DataHolder.getImages());
+    }
+
+    private void restoreSpinnerInfo() {
+        int[] spinnerInfo = DataHolder.getSpinnerPos();
+        activity.restoreSpinnerInfo(spinnerInfo[0], spinnerInfo[1]);
     }
 
     private List<Bitmap> fetchBitmap(List<ImageEntry> images) {
         List<Bitmap> bitmaps = new ArrayList<>(images.size());
         for (ImageEntry image : images) {
-            bitmaps.add(decodeBitmap(image.path, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT));
+            bitmaps.add(BitmapFactory.decodeFile(image.path));
+//            bitmaps.add(decodeBitmap(image.path, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT));
         }
         return bitmaps;
     }
@@ -89,9 +102,12 @@ public class CreationAdapter implements Picker.PickListener, LoaderManager.Loade
 
     public void removeImage(int pos) {
         DataHolder.removeImage(pos);
-        if (DataHolder.imageCount() == 0) {
-            activity.toggleAddImageTextView(true);
-        }
+        refreshImages();
+    }
+
+    public void setAudioFile(File file) {
+        DataHolder.setAudioPath(file.getAbsolutePath(), Constants.SOURCE_AUDIO_PICKER);
+        activity.refreshAudio(DataHolder.getAudioSource());
     }
 
     public void setAudioUri(Uri uri) {
@@ -122,10 +138,24 @@ public class CreationAdapter implements Picker.PickListener, LoaderManager.Loade
         if (audioPath == null) {
             audioPath = audioUri.getPath();
         }
-        DataHolder.setAudioPath(audioPath);
+        DataHolder.setAudioPath(audioPath, Constants.SOURCE_AUDIO_RECORDER);
+        activity.refreshAudio(DataHolder.getAudioSource());
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
     }
+
+    public int getAllowedCount() {
+        return Constants.MAX_IMAGES - DataHolder.imageCount();
+    }
+
+    public void deleteAll() {
+        DataHolder.clear();
+    }
+
+    public void setSpinnerPos(int countSpinnerPos, int timeSpinnerPos) {
+        DataHolder.setSpinnerPos(countSpinnerPos, timeSpinnerPos);
+    }
+
 }

@@ -2,6 +2,7 @@ package com.pic2fro.pic2fro.controller;
 
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -83,7 +84,9 @@ public class VideoListAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             viewHolder.videoName = (TextView) convertView.findViewById(R.id.video_name_tv);
             viewHolder.removeButton = (ImageButton) convertView.findViewById(R.id.video_remove_btn);
+            viewHolder.removeButton.setBackgroundColor(ContextCompat.getColor(activity, R.color.light_red));
             viewHolder.shareButton = (ImageButton) convertView.findViewById(R.id.video_share_btn);
+            viewHolder.shareButton.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.holo_green_light));
 
             viewHolder.removeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
