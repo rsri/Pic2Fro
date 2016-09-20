@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -13,9 +12,12 @@ import android.support.v7.app.AlertDialog;
 import android.widget.EditText;
 
 import com.pic2fro.pic2fro.R;
+import com.pic2fro.pic2fro.creators.SoundRecorder;
 import com.pic2fro.pic2fro.views.FileChooser;
 
 import net.yazeed44.imagepicker.util.Picker;
+
+import java.io.File;
 
 /**
  * Created by srikaram on 01-Sep-16.
@@ -69,10 +71,6 @@ public class IntentCreator {
         } else {
             ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.REQ_CODE_READ_PERMISSION_AUDIO);
         }
-//        Intent intent = new Intent();
-//        intent.setType("audio/*");
-//        intent.setAction(Intent.ACTION_GET_CONTENT);
-//        activity.startActivityForResult(intent, Constants.REQ_CODE_AUDIO_PICK);
     }
 
     private static void launchAudioPickerInternal(FragmentActivity activity, FileChooser.FileSelectedListener listener) {
@@ -81,9 +79,20 @@ public class IntentCreator {
         fileChooser.showDialog();
     }
 
-    public static void launchAudioRecorder(FragmentActivity activity) {
-        Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-        activity.startActivityForResult(intent, Constants.REQ_CODE_AUDIO_RECORD);
+    public static void launchAudioRecorder(FragmentActivity activity, SoundRecorder.RecordListener listener) {
+        int permissionCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            launchAudioRecorderInternal(activity, listener);
+        } else {
+            ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.RECORD_AUDIO}, Constants.REQ_CODE_READ_PERMISSION_RECORD);
+        }
+//        Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+//        activity.startActivityForResult(intent, Constants.REQ_CODE_AUDIO_RECORD);
+    }
+
+    private static void launchAudioRecorderInternal(FragmentActivity activity, SoundRecorder.RecordListener listener) {
+        SoundRecorder recorder = new SoundRecorder(activity, listener);
+        recorder.startRecording();
     }
 
     public static void launchVideoSharer(FragmentActivity activity, Uri videoUri) {
@@ -92,5 +101,11 @@ public class IntentCreator {
         shareIntent.putExtra(Intent.EXTRA_STREAM, videoUri);
         shareIntent.setType("video/mp4");
         activity.startActivity(Intent.createChooser(shareIntent, activity.getText(R.string.send_to)));
+    }
+
+    public static void launchVideoPlayer(FragmentActivity activity, File videoFile) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromFile(videoFile));
+        intent.setDataAndType(Uri.fromFile(videoFile), "video/mp4");
+        activity.startActivity(intent);
     }
 }

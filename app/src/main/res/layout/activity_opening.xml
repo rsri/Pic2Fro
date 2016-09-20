@@ -3,50 +3,58 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/splash_background"
+    android:paddingTop="10dp"
     android:orientation="vertical"
-    android:weightSum="2"
+    android:weightSum="5"
     tools:context="com.pic2fro.pic2fro.activities.OpeningActivity">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:src="@drawable/image"/>
+        android:layout_weight="1.5"
+        android:scaleType="fitXY"
+        android:src="@drawable/banner" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:weightSum="2">
+        android:layout_marginTop="10dp"
+        android:layout_weight="3.5">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:gravity="center"
-            android:layout_weight="1">
+        <Button
+            android:id="@+id/create_video_btn"
+            android:layout_width="150dp"
+            android:layout_height="65dp"
+            android:textColor="@android:color/white"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/rounded_corners"
+            android:layout_centerHorizontal="true"
+            android:text="@string/create_video"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <Button
-                android:id="@+id/create_video_btn"
-                android:layout_width="100dp"
-                android:layout_height="75dp"
-                android:layout_marginEnd="10dp"
-                android:text="@string/create_video"/>
-
-            <Button
-                android:id="@+id/views_videos_btn"
-                android:layout_width="100dp"
-                android:layout_height="75dp"
-                android:layout_marginStart="10dp"
-                android:text="@string/view_videos"/>
-        </LinearLayout>
+        <Button
+            android:id="@+id/views_videos_btn"
+            android:layout_width="150dp"
+            android:layout_height="65dp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/rounded_corners"
+            android:layout_below="@+id/create_video_btn"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text="@string/videos"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Button
             android:id="@+id/exit_btn"
-            android:layout_width="100dp"
-            android:layout_height="75dp"
-            android:gravity="center"
-            android:text="@string/exit"/>
-    </LinearLayout>
+            android:layout_width="150dp"
+            android:layout_height="65dp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/rounded_corners"
+            android:layout_below="@+id/views_videos_btn"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text="@string/exit"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </RelativeLayout>
 </LinearLayout>

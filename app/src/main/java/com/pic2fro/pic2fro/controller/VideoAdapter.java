@@ -22,6 +22,9 @@ import com.pic2fro.pic2fro.util.Util;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 
 /**
@@ -30,52 +33,96 @@ import java.util.Arrays;
 public class VideoAdapter {
 
     private final FragmentActivity activity;
-    private boolean needsShare = false;
 
     public VideoAdapter(FragmentActivity activity) {
         this.activity = activity;
     }
 
-    public void saveVideo(final boolean needsShare) {
-        IntentCreator.launchVideoSaverDialog(activity, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        VideoAdapter.this.needsShare = needsShare;
-                        AlertDialog alertDialog = ((AlertDialog) dialog);
-                        String fileName = ((EditText) alertDialog.findViewById(android.R.id.edit)).getText().toString();
-                        fileName = FilenameUtils.getBaseName(fileName);
-                        Bundle extras = activity.getIntent().getExtras();
-                        if (extras != null && !fileName.isEmpty()) {
-                            double time = Double.parseDouble(extras.getString(Constants.ARG_TIME).substring(0, 3));
-                            int count = Integer.parseInt(extras.getString(Constants.ARG_COUNT));
-                            VideoSaver videoSaver = new VideoSaver(time, count, fileName);
-                            videoSaver.execute(DataHolder.getImages().toArray(new Bitmap[DataHolder.imageCount()]));
-                        }
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        dialog.dismiss();
-                        break;
-                }
+    private DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    AlertDialog alertDialog = ((AlertDialog) dialog);
+                    String fileName = ((EditText) alertDialog.findViewById(android.R.id.edit)).getText().toString();
+                    fileName = FilenameUtils.getBaseName(fileName).trim();
+                    processFileName(fileName);
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    dialog.dismiss();
+                    break;
             }
-        });
+        }
+    };
+
+    private void processFileName(final String fileName) {
+        if (!new File(Util.buildVideoName(fileName)).exists()) {
+            doSave(fileName);
+        } else {
+            AlertDialog.Builder alBuilder = new AlertDialog.Builder(activity);
+            alBuilder.setMessage(R.string.video_exists);
+            alBuilder.setPositiveButton(R.string.overwrite, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    doSave(fileName);
+                }
+            });
+
+            alBuilder.setNegativeButton(R.string.rechoose, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    IntentCreator.launchVideoSaverDialog(activity, clickListener);
+                }
+            });
+
+            alBuilder.setNeutralButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+
+            alBuilder.show();
+        }
+    }
+
+    private void doSave(String fileName) {
+        Bundle extras = activity.getIntent().getExtras();
+        if (extras != null && !fileName.isEmpty()) {
+            double time = Double.parseDouble(extras.getString(Constants.ARG_TIME).substring(0, 3));
+            int count = Integer.parseInt(extras.getString(Constants.ARG_COUNT));
+            VideoSaver videoSaver = new VideoSaver(time, count, fileName);
+            videoSaver.execute(DataHolder.getImages().toArray(new Bitmap[DataHolder.imageCount()]));
+        }
+    }
+
+    public void saveVideo() {
+        IntentCreator.launchVideoSaverDialog(activity, clickListener);
     }
 
     public void shareVideo(String savedPath) {
         IntentCreator.launchVideoSharer(activity, Uri.fromFile(new File(savedPath)));
     }
 
-    private void onVideoSaved(String savedPath) {
+    private void onVideoSaved(final String savedPath) {
         if (savedPath == null) {
             Toast.makeText(activity, R.string.error_video, Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(activity, activity.getString(R.string.saved, savedPath), Toast.LENGTH_SHORT).show();
-        if (needsShare) {
-            shareVideo(savedPath);
-            needsShare = false;
-        }
+        AlertDialog.Builder alBuilder = new AlertDialog.Builder(activity);
+        alBuilder.setMessage(activity.getString(R.string.saved, savedPath));
+        alBuilder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        alBuilder.setNegativeButton(R.string.share, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                shareVideo(savedPath);
+            }
+        });
+        alBuilder.show();
+//        Toast.makeText(activity, activity.getString(R.string.saved, savedPath), Toast.LENGTH_SHORT).show();
     }
 
     private class VideoSaver extends AsyncTask<Bitmap, Void, String> {
@@ -102,14 +149,14 @@ public class VideoAdapter {
         @Override
         protected String doInBackground(Bitmap... params) {
             try {
-                String finalPath = Util.getOurFolder() + "/" + fileName + ".mp4";
+                String finalPath = Util.buildVideoName(fileName);
                 Context context = VideoAdapter.this.activity;
                 String videoTempPath = VideoCreator.constructVoicelessVideo(context, fileName, Arrays.asList(params), time, count);
                 VideoCreator.createFullVideo(finalPath, context, fileName, DataHolder.getAudioPath(), videoTempPath);
                 return finalPath;
             } catch (Exception e) {
                 e.printStackTrace();
-                return null;
+                throw new RuntimeException(e);
             } finally {
                 clearCache();
             }
@@ -136,9 +183,9 @@ public class VideoAdapter {
 
     private boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (String child : children) {
-                boolean success = deleteDir(new File(dir, child));
+            File[] children = dir.listFiles();
+            for (File child : children) {
+                boolean success = deleteDir(child);
                 if (!success) {
                     return false;
                 }

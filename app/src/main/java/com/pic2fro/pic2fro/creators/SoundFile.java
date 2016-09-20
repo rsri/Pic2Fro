@@ -113,55 +113,13 @@ public class SoundFile {
         }
         SoundFile soundFile = new SoundFile();
         soundFile.setProgressListener(progressListener);
-        soundFile.RecordAudio();
+        soundFile.recordAudio();
         return soundFile;
-    }
-
-    public String getFiletype() {
-        return mFileType;
-    }
-
-    public int getFileSizeBytes() {
-        return mFileSize;
-    }
-
-    public int getAvgBitrateKbps() {
-        return mAvgBitRate;
-    }
-
-    public int getSampleRate() {
-        return mSampleRate;
-    }
-
-    public int getChannels() {
-        return mChannels;
-    }
-
-    public int getNumSamples() {
-        return mNumSamples;  // Number of samples per channel.
-    }
-
-    // Should be removed when the app will use directly the samples instead of the frames.
-    public int getNumFrames() {
-        return mNumFrames;
     }
 
     // Should be removed when the app will use directly the samples instead of the frames.
     public int getSamplesPerFrame() {
         return 1024;  // just a fixed value here...
-    }
-
-    // Should be removed when the app will use directly the samples instead of the frames.
-    public int[] getFrameGains() {
-        return mFrameGains;
-    }
-
-    public ShortBuffer getSamples() {
-        if (mDecodedSamples != null) {
-            return mDecodedSamples.asReadOnlyBuffer();
-        } else {
-            return null;
-        }
     }
 
     // A SoundFile object should only be created using the static methods create() and record().
@@ -173,8 +131,7 @@ public class SoundFile {
     }
 
     private void ReadFile(File inputFile)
-            throws java.io.FileNotFoundException,
-            java.io.IOException, InvalidInputException {
+            throws java.io.IOException, InvalidInputException {
         MediaExtractor extractor = new MediaExtractor();
         MediaFormat format = null;
         int i;
@@ -376,7 +333,7 @@ public class SoundFile {
         // DumpSamples();  // Uncomment this line to dump the samples in a TSV file.
     }
 
-    private void RecordAudio() {
+    private void recordAudio() {
         if (mProgressListener == null) {
             // A progress listener is mandatory here, as it will let us know when to stop recording.
             return;
@@ -469,12 +426,6 @@ public class SoundFile {
         }
         mDecodedSamples.rewind();
         // DumpSamples();  // Uncomment this line to dump the samples in a TSV file.
-    }
-
-    public int getEstimatedEncodedSize(long totalTime) {
-        int numChannels = (mChannels == 1) ? 2 : mChannels;
-        int bitrate = 64000 * numChannels;
-        return (int) (totalTime * (bitrate / 8) * 1.1);
     }
 
     public void writeFile(File outputFile, float startTime, float endTime)

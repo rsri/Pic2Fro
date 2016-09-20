@@ -11,6 +11,7 @@ public class Constants {
     public static final int REQ_CODE_READ_PERMISSION_IMAGES = 3;
     public static final int REQ_CODE_WRITE_PERMISSION = 4;
     public static final int REQ_CODE_READ_PERMISSION_AUDIO = 5;
+    public static final int REQ_CODE_READ_PERMISSION_RECORD = 6;
 
     public static final int SOURCE_AUDIO_PICKER = 1;
     public static final int SOURCE_AUDIO_RECORDER = 2;

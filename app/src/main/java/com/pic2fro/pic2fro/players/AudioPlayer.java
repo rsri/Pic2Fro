@@ -20,7 +20,6 @@ public class AudioPlayer {
             this.mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(path);
             mediaPlayer.setLooping(true);
-            mediaPlayer.prepare();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -31,7 +30,12 @@ public class AudioPlayer {
         if (mediaPlayer == null) {
             return;
         }
-        mediaPlayer.start();
+        try {
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void stop() {
@@ -41,7 +45,5 @@ public class AudioPlayer {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
         }
-        mediaPlayer.release();
-        mediaPlayer = null;
     }
 }

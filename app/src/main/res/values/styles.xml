@@ -29,5 +29,9 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
+    <style name="Theme.AppCompat.Light.NoActionBar.StatusColor" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimaryDark">@color/splash_background_dark</item>
+    </style>
+
 
 </resources>

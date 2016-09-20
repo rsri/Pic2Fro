@@ -24,6 +24,7 @@ import android.widget.ViewFlipper;
 
 import com.pic2fro.pic2fro.R;
 import com.pic2fro.pic2fro.controller.CreationAdapter;
+import com.pic2fro.pic2fro.creators.SoundRecorder;
 import com.pic2fro.pic2fro.util.Constants;
 import com.pic2fro.pic2fro.util.IntentCreator;
 import com.pic2fro.pic2fro.util.Util;
@@ -34,7 +35,7 @@ import java.util.List;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-public class CreatorActivity extends AppCompatActivity implements View.OnClickListener, FileChooser.FileSelectedListener {
+public class CreatorActivity extends AppCompatActivity implements View.OnClickListener, FileChooser.FileSelectedListener, SoundRecorder.RecordListener {
 
     private TextView addImageTV;
     private CardView audioPickCV;
@@ -115,7 +116,7 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
                 IntentCreator.launchAudioPicker(this, this);
                 break;
             case R.id.audio_record_cv:
-                IntentCreator.launchAudioRecorder(this);
+                IntentCreator.launchAudioRecorder(this, this);
                 break;
             default:
                 break;
@@ -123,24 +124,33 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
-    public void fileSelected(File file) {
-        adapter.setAudioFile(file);
+    public void onFilePicked(File file) {
+        adapter.setAudioFile(file, Constants.SOURCE_AUDIO_PICKER);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case Constants.REQ_CODE_AUDIO_PICK:
-                case Constants.REQ_CODE_AUDIO_RECORD:
-                    adapter.setAudioUri(data.getData());
-                    break;
-                default:
-                    break;
-            }
-        }
+    public void onRecordFileSaved(File file) {
+        adapter.setAudioFile(file, Constants.SOURCE_AUDIO_RECORDER);
     }
+
+    @Override
+    public void onRecordCancelled() {
+    }
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (resultCode == RESULT_OK) {
+//            switch (requestCode) {
+//                case Constants.REQ_CODE_AUDIO_PICK:
+//                case Constants.REQ_CODE_AUDIO_RECORD:
+//                    adapter.setAudioUri(data.getData());
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
+//    }
 
     public void refreshAudio(int source) {
         int cardBackground = Color.parseColor("#f9f9f9");
@@ -175,6 +185,13 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
                     Toast.makeText(this, getString(R.string.need_permission, "access audios"), Toast.LENGTH_SHORT).show();
                 } else {
                     IntentCreator.launchAudioPicker(this, this);
+                }
+                break;
+            case Constants.REQ_CODE_READ_PERMISSION_RECORD:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, getString(R.string.need_permission, "record audio"), Toast.LENGTH_SHORT).show();
+                } else {
+                    IntentCreator.launchAudioRecorder(this, this);
                 }
                 break;
             default:
@@ -287,4 +304,5 @@ public class CreatorActivity extends AppCompatActivity implements View.OnClickLi
         int position = (int) parent.getTag() - 2;
         adapter.removeImage(position);
     }
+
 }

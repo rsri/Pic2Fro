@@ -1,25 +1,26 @@
 package com.pic2fro.pic2fro.creators;
 
-import android.graphics.Bitmap;
 import android.util.Pair;
 
 import org.jcodec.codecs.h264.H264Encoder;
 import org.jcodec.codecs.h264.H264Utils;
 import org.jcodec.codecs.h264.io.model.NALUnit;
 import org.jcodec.codecs.h264.io.model.NALUnitType;
-import org.jcodec.common.NIOUtils;
-import org.jcodec.common.SeekableByteChannel;
+import org.jcodec.common.io.NIOUtils;
+import org.jcodec.common.io.SeekableByteChannel;
 import org.jcodec.common.model.ColorSpace;
-import org.jcodec.common.model.Picture;
+import org.jcodec.common.model.Picture8Bit;
+import org.jcodec.common.model.Rational;
+import org.jcodec.common.model.TapeTimecode;
 import org.jcodec.containers.mp4.Brand;
 import org.jcodec.containers.mp4.MP4Packet;
 import org.jcodec.containers.mp4.TrackType;
 import org.jcodec.containers.mp4.muxer.FramesMP4MuxerTrack;
 import org.jcodec.containers.mp4.muxer.MP4Muxer;
-import org.jcodec.scale.BitmapUtil;
 import org.jcodec.scale.ColorUtil;
-import org.jcodec.scale.Transform;
+import org.jcodec.scale.Transform8Bit;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -42,8 +43,7 @@ public class SequenceEncoder {
     }
 
     private SeekableByteChannel ch;
-    private Picture toEncode;
-    private Transform transform;
+    private Transform8Bit transform;
     private H264Encoder encoder;
     private ArrayList<ByteBuffer> spsList;
     private ArrayList<ByteBuffer> ppsList;
@@ -51,65 +51,60 @@ public class SequenceEncoder {
     private ByteBuffer _out;
     private int frameNo;
     private MP4Muxer muxer;
+    private ByteBuffer sps;
+    private ByteBuffer pps;
+    private int timestamp;
+    private Rational fps;
     private Pair<Integer, Integer> details;
+    private Map<Picture8Bit, Picture8Bit> rgbToyuv420j = new HashMap<>();
 
-    public SequenceEncoder(SeekableByteChannel ch, double time) throws IOException {
+    public SequenceEncoder(SeekableByteChannel ch, double time, int width, int height) throws IOException {
         this.ch = ch;
-
-        details = timeToFPSMap.get(time);
-
-        // Muxer that will store the encoded frames
-        muxer = new MP4Muxer(ch, Brand.MP4);
-
-        // Add video track to muxer
-        outTrack = muxer.addTrack(TrackType.VIDEO, details.first);
-
-        // Allocate a buffer big enough to hold output frames
-        _out = ByteBuffer.allocate(1920 * 1080 * 6);
-
-        // Create an instance of encoder
-        encoder = new H264Encoder();
-
-        // Transform to convert between RGB and YUV
-        transform = ColorUtil.getTransform(ColorSpace.RGB, encoder.getSupportedColorSpaces()[0]);
-
-        // Encoder extra data ( SPS, PPS ) to be stored in a special place of
-        // MP4
-        spsList = new ArrayList<>();
-        ppsList = new ArrayList<>();
+        this.muxer = MP4Muxer.createMP4Muxer(ch, Brand.MP4);
+        this.details = timeToFPSMap.get(time);
+        this.outTrack = this.muxer.addTrack(TrackType.VIDEO, details.first);
+        this._out = ByteBuffer.allocate(width * height * 6);
+        this.encoder = H264Encoder.createH264Encoder();
+        this.transform = ColorUtil.getTransform8Bit(ColorSpace.RGB, this.encoder.getSupportedColorSpaces()[0]);
+        this.spsList = new ArrayList<>();
+        this.ppsList = new ArrayList<>();
     }
 
-    public void encodeFrame(Bitmap pic) throws IOException {
-        if (toEncode == null) {
-            toEncode = Picture.create(pic.getWidth(), pic.getHeight(), encoder.getSupportedColorSpaces()[0]);
+    public void encodeFrame(Picture8Bit pic) throws IOException {
+        Picture8Bit yuv420jPic = rgbToyuv420j.get(pic);
+        if (yuv420jPic == null) {
+            yuv420jPic = Picture8Bit.create(pic.getWidth(), pic.getHeight(), this.encoder.getSupportedColorSpaces()[0]);
+            this.transform.transform(pic, yuv420jPic);
+            rgbToyuv420j.put(pic, yuv420jPic);
         }
 
-        // Perform conversion
-        transform.transform(BitmapUtil.fromBitmap(pic), toEncode);
-
-        // Encode image into H.264 frame, the result is stored in '_out' buffer
-        _out.clear();
-        ByteBuffer result = encoder.encodeFrame(toEncode, _out);
-
-        // Based on the frame above form correct MP4 packet
-        spsList.clear();
-        ppsList.clear();
-        H264Utils.wipePS(result, spsList, ppsList);
+        this._out.clear();
+        ByteBuffer result = this.encoder.encodeFrame8Bit(yuv420jPic, this._out);
+        this.spsList.clear();
+        this.ppsList.clear();
+        H264Utils.wipePSinplace(result, this.spsList, this.ppsList);
         NALUnit nu = NALUnit.read(NIOUtils.from(result.duplicate(), 4));
         H264Utils.encodeMOVPacket(result);
+        if (this.sps == null && this.spsList.size() != 0) {
+            this.sps = this.spsList.get(0);
+        }
 
-        int timestamp = frameNo * details.second;
-        // Add packet to video track
-        outTrack.addFrame(new MP4Packet(result, timestamp, details.first, details.second, frameNo, nu.type == NALUnitType.IDR_SLICE, null, timestamp, frameNo));
-        frameNo++;
+        if (this.pps == null && this.ppsList.size() != 0) {
+            this.pps = this.ppsList.get(0);
+        }
+
+        timestamp = frameNo * details.second;
+        this.outTrack.addFrame(MP4Packet.createMP4Packet(result, (long) this.timestamp, details.first, details.second, (long) this.frameNo, nu.type == NALUnitType.IDR_SLICE, (TapeTimecode) null, 0, (long) this.timestamp, 0));
+        ++this.frameNo;
     }
 
     public void finish() throws IOException {
-        // Push saved SPS/PPS to a special storage in MP4
-        outTrack.addSampleEntry(H264Utils.createMOVSampleEntry(spsList, ppsList, 4));
-
-        // Write MP4 header and finalize recording
-        muxer.writeHeader();
-        NIOUtils.closeQuietly(ch);
+        if (this.sps != null && this.pps != null) {
+            this.outTrack.addSampleEntry(H264Utils.createMOVSampleEntryFromBuffer(this.sps, this.pps, 4));
+            this.muxer.writeHeader();
+            NIOUtils.closeQuietly(this.ch);
+        } else {
+            throw new RuntimeException("Somehow the encoder didn\'t generate SPS/PPS pair, did you encode at least one frame?");
+        }
     }
 }

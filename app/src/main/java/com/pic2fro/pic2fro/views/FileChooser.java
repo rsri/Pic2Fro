@@ -20,7 +20,7 @@ import com.pic2fro.pic2fro.R;
 import com.pic2fro.pic2fro.creators.SoundFile;
 
 import org.apache.commons.io.FilenameUtils;
-import org.jcodec.common.IOUtils;
+import org.jcodec.common.io.IOUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -44,7 +44,7 @@ public class FileChooser {
 
     // file selection event handling
     public interface FileSelectedListener {
-        void fileSelected(File file);
+        void onFilePicked(File file);
     }
 
     public FileChooser setFileListener(FileSelectedListener fileListener) {
@@ -70,7 +70,7 @@ public class FileChooser {
                         refresh(chosenFile);
                     } else {
                         if (fileListener != null) {
-                            fileListener.fileSelected(chosenFile);
+                            fileListener.onFilePicked(chosenFile);
                         }
                         dialog.dismiss();
                     }

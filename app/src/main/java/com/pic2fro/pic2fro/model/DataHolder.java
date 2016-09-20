@@ -22,7 +22,8 @@ public class DataHolder {
 
     public static void removeImage(int pos) {
         validatePos(pos);
-        images.remove(pos);
+        Bitmap removedBm = images.remove(pos);
+        removedBm.recycle();
     }
 
     public static void setSpinnerPos(int countSpinnerPos, int timeSpinnerPos) {

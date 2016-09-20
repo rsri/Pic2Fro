@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.pic2fro.pic2fro.R;
@@ -14,15 +15,19 @@ import com.pic2fro.pic2fro.controller.PlayAdapter;
 import com.pic2fro.pic2fro.controller.VideoAdapter;
 import com.pic2fro.pic2fro.util.Constants;
 
-public class PlayActivity extends AppCompatActivity {
+public class PlayActivity extends AppCompatActivity implements View.OnClickListener {
 
     private PlayAdapter playAdapter;
     private VideoAdapter videoAdapter;
+
+    private ImageView replayImageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
 
+        replayImageView = (ImageView) findViewById(R.id.replay_imageview);
+        replayImageView.setOnClickListener(this);
         playAdapter = new PlayAdapter(this);
         videoAdapter = new VideoAdapter(this);
         playAdapter.beginSlideshow();
@@ -38,10 +43,7 @@ public class PlayActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_save) {
-            videoAdapter.saveVideo(false);
-            return true;
-        } else if (id == R.id.action_share) {
-            videoAdapter.saveVideo(true);
+            videoAdapter.saveVideo();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -63,9 +65,21 @@ public class PlayActivity extends AppCompatActivity {
         }
     }
 
+    public void onSlideshowEnded() {
+        replayImageView.setVisibility(View.VISIBLE);
+    }
+
     @Override
     public void finish() {
-        playAdapter.endSlideshow();
         super.finish();
+        playAdapter.endSlideshow();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == replayImageView) {
+            replayImageView.setVisibility(View.INVISIBLE);
+            playAdapter.beginSlideshow();
+        }
     }
 }

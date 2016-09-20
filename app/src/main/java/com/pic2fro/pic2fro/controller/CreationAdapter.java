@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Created by srikaram on 01-Sep-16.
  */
-public class CreationAdapter implements Picker.PickListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class CreationAdapter implements Picker.PickListener {
 
     private final CreatorActivity activity;
     private Uri audioUri;
@@ -58,8 +58,8 @@ public class CreationAdapter implements Picker.PickListener, LoaderManager.Loade
     private List<Bitmap> fetchBitmap(List<ImageEntry> images) {
         List<Bitmap> bitmaps = new ArrayList<>(images.size());
         for (ImageEntry image : images) {
-            bitmaps.add(BitmapFactory.decodeFile(image.path));
-//            bitmaps.add(decodeBitmap(image.path, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT));
+//            bitmaps.add(BitmapFactory.decodeFile(image.path));
+            bitmaps.add(decodeBitmap(image.path, Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT));
         }
         return bitmaps;
     }
@@ -105,46 +105,46 @@ public class CreationAdapter implements Picker.PickListener, LoaderManager.Loade
         refreshImages();
     }
 
-    public void setAudioFile(File file) {
-        DataHolder.setAudioPath(file.getAbsolutePath(), Constants.SOURCE_AUDIO_PICKER);
+    public void setAudioFile(File file, int source) {
+        DataHolder.setAudioPath(file.getAbsolutePath(), source);
         activity.refreshAudio(DataHolder.getAudioSource());
     }
 
-    public void setAudioUri(Uri uri) {
-        audioUri = uri;
-        activity.getSupportLoaderManager().initLoader(0, null, this);
-    }
-
-    private String getPathFromCursor(Cursor cursor) {
-        int colIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
-        cursor.moveToFirst();
-        return cursor.getString(colIndex);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projs = {MediaStore.Audio.Media.DATA};
-        return new CursorLoader(activity, audioUri, projs, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        String audioPath = null;
-        try {
-            audioPath = getPathFromCursor(data);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        if (audioPath == null) {
-            audioPath = audioUri.getPath();
-        }
-        DataHolder.setAudioPath(audioPath, Constants.SOURCE_AUDIO_RECORDER);
-        activity.refreshAudio(DataHolder.getAudioSource());
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-    }
+//    public void setAudioUri(Uri uri) {
+//        audioUri = uri;
+//        activity.getSupportLoaderManager().initLoader(0, null, this);
+//    }
+//
+//    private String getPathFromCursor(Cursor cursor) {
+//        int colIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+//        cursor.moveToFirst();
+//        return cursor.getString(colIndex);
+//    }
+//
+//    @Override
+//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        String[] projs = {MediaStore.Audio.Media.DATA};
+//        return new CursorLoader(activity, audioUri, projs, null, null, null);
+//    }
+//
+//    @Override
+//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+//        String audioPath = null;
+//        try {
+//            audioPath = getPathFromCursor(data);
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        if (audioPath == null) {
+//            audioPath = audioUri.getPath();
+//        }
+//        DataHolder.setAudioPath(audioPath, Constants.SOURCE_AUDIO_RECORDER);
+//        activity.refreshAudio(DataHolder.getAudioSource());
+//    }
+//
+//    @Override
+//    public void onLoaderReset(Loader<Cursor> loader) {
+//    }
 
     public int getAllowedCount() {
         return Constants.MAX_IMAGES - DataHolder.imageCount();

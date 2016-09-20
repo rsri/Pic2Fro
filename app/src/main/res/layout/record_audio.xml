@@ -1,0 +1,15 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/record_audio_timer"
+        android:textColor="#000000"
+        android:textSize="50sp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="0:00.00"
+        android:gravity="center" />
+
+</LinearLayout>

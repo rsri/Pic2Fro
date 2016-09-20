@@ -88,6 +88,12 @@ public class VideoListAdapter extends BaseAdapter {
             viewHolder.shareButton = (ImageButton) convertView.findViewById(R.id.video_share_btn);
             viewHolder.shareButton.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.holo_green_light));
 
+            viewHolder.videoName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    IntentCreator.launchVideoPlayer(activity, file);
+                }
+            });
             viewHolder.removeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

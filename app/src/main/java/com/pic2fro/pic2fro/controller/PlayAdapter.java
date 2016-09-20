@@ -27,7 +27,7 @@ public class PlayAdapter {
     private final double time;
     private final int count;
 
-    private Timer timer = new Timer();
+    private Timer timer;
 
     public PlayAdapter(PlayActivity activity) {
         this.activity = activity;
@@ -41,8 +41,10 @@ public class PlayAdapter {
     private int counter = 0;
 
     public void beginSlideshow() {
+        counter = 0;
         long period = (long) (time * 1000.0);
         audioPlayer.play();
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -70,13 +72,16 @@ public class PlayAdapter {
     public void endSlideshow() {
         timer.cancel();
         audioPlayer.stop();
-        showSystemUi();
+        if (!activity.isFinishing()) {
+            showSystemUi();
+        }
     }
 
     private void showSystemUi() {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                activity.onSlideshowEnded();
                 activity.getWindow().getDecorView().setSystemUiVisibility(
                         View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
