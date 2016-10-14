@@ -6,12 +6,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 
 import com.pic2fro.pic2fro.util.Util;
-
-import org.jcodec.common.io.IOUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -100,8 +97,8 @@ public class CrashReporterActivity extends AppCompatActivity {
         }
         catch (IOException e)
         {
-            IOUtils.closeQuietly(writer);
-            IOUtils.closeQuietly(reader);
+            Util.closeQuietly(writer);
+            Util.closeQuietly(reader);
             // You might want to write a failure message to the log here.
             return null;
         }

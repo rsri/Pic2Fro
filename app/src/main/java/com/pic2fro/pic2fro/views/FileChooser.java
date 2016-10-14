@@ -18,9 +18,9 @@ import android.widget.TextView;
 
 import com.pic2fro.pic2fro.R;
 import com.pic2fro.pic2fro.creators.SoundFile;
+import com.pic2fro.pic2fro.util.Util;
 
 import org.apache.commons.io.FilenameUtils;
-import org.jcodec.common.io.IOUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -116,7 +116,7 @@ public class FileChooser {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeQuietly(fos);
+            Util.closeQuietly(fos);
         }
     }
 

@@ -12,19 +12,11 @@ import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
-import com.pic2fro.pic2fro.util.Util;
-
-import org.jcodec.common.io.NIOUtils;
-import org.jcodec.common.model.ColorSpace;
-import org.jcodec.common.model.Picture;
-import org.jcodec.common.model.Picture8Bit;
-import org.jcodec.scale.BitmapUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,7 +27,6 @@ public class VideoCreator {
 
     public static String constructVoicelessVideo(Context context, String timestamp, List<Bitmap> bitmaps, double time, int count) throws IOException {
         File tempFile = File.createTempFile(timestamp, ".mp4", context.getExternalCacheDir());
-        List<Picture8Bit> pictures = new ArrayList<>(bitmaps.size());
         int maxWidth = 0, maxHeight = 0;
         for (Bitmap image : bitmaps) {
             if (maxWidth < image.getWidth()) {
@@ -47,31 +38,8 @@ public class VideoCreator {
         }
         maxWidth = maxWidth % 2 == 0? maxWidth : maxWidth+1;
         maxHeight = maxHeight % 2 == 0? maxHeight : maxHeight+1;
-        SequenceEncoder encoder = new SequenceEncoder(NIOUtils.rwChannel(tempFile), time, maxWidth, maxHeight);
-        Bitmap modImage = null;
-        for (Bitmap image : bitmaps) {
-            Bitmap bmToUse;
-            if (image.getHeight() == maxHeight && image.getWidth() == maxWidth) {
-                bmToUse = image;
-            } else {
-                modImage = Util.getResizedBitmap(image, maxWidth, maxHeight, modImage);
-                bmToUse = modImage;
-            }
-            int width = bmToUse.getWidth() % 2 == 0? bmToUse.getWidth() : bmToUse.getWidth() + 1;
-            int height = bmToUse.getHeight() % 2 == 0? bmToUse.getHeight() : bmToUse.getHeight() + 1;
-            Picture8Bit picture = Picture8Bit.create(width, height, ColorSpace.RGB);
-            BitmapUtil.fromBitmap8Bit(bmToUse, picture);
-            pictures.add(picture);
-        }
-        if (modImage != null) {
-            modImage.recycle();
-        }
-        for (int i = 0; i < count; i++) {
-            for (Picture8Bit image : pictures) {
-                encoder.encodeFrame(image);
-            }
-        }
-        encoder.finish();
+        VideoEncoder videoCreator = new VideoEncoder(bitmaps, maxWidth, maxHeight, time, count, tempFile);
+        videoCreator.encodeVideo();
         return tempFile.getAbsolutePath();
     }
 
